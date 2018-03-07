@@ -5,13 +5,13 @@ With ShuttleBackup you can easily automate the backup process of Rocket.Chat's d
 Place the compiled and crontab files in the appropriate directory using the following commands:
 ```bash
 sudo mkdir /opt/shuttlebackup
-sudo mv ~/ShuttleBackup/shuttlebackup.py /opt/shuttlebackup/shuttlebackup.py
-sudo cp ~/shuttlebackup/shuttlebackup /opt/shuttlebackup
+sudo mv ~/ShuttleBackup/ShuttleBackup/shuttlebackup.py /opt/shuttlebackup/shuttlebackup.py
+sudo mv ~/ShuttleBackup/ShuttleBackup/shuttletab /opt/shuttlebackup/shuttletab
 ```
 
 Now add the cron job to the root user:
 ```bash
-sudo crontab /opt/shuttlebackup/shuttlebackup
+sudo crontab /opt/shuttlebackup/shuttletab
 ```
 
 You can check if it was properly added using the command:
