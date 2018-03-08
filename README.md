@@ -7,8 +7,8 @@ Place the python and crontab files in the appropriate directory using the follow
 git clone https://github.com/StanGenchev/ShuttleBackup.git
 cd ShuttleBackup
 sudo mkdir /opt/shuttlebackup
-sudo mv ~/ShuttleBackup/shuttlebackup.py /opt/shuttlebackup/shuttlebackup.py
-sudo mv ~/ShuttleBackup/shuttletab /opt/shuttlebackup/shuttletab
+sudo mv ./ShuttleBackup/shuttlebackup.py /opt/shuttlebackup/shuttlebackup.py
+sudo mv ./ShuttleBackup/shuttletab /opt/shuttlebackup/shuttletab
 ```
 
 Now add the cron job to the root user:
@@ -23,12 +23,12 @@ sudo crontab -l
 
 Add email addresses to notify in case of errors:
 ```bash
-/opt/shuttlebackup/shuttlebackup.py --add-mails
+sudo /opt/shuttlebackup/shuttlebackup.py --add-mails
 ```
 
 Clear all emails:
 ```bash
-/opt/shuttlebackup/shuttlebackup.py --clear-mails
+sudo /opt/shuttlebackup/shuttlebackup.py --clear-mails
 ```
 
 # Change the time of the backup process
