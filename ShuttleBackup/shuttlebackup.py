@@ -1,73 +1,152 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""ShuttleBackup"""
 
-import os, sys, subprocess, shutil, datetime, smtplib, socket
+import os
+import sys
+import subprocess
+import shutil
+import datetime
+import smtplib
+import socket
 from email.message import EmailMessage
 
-bkdir = "/var/local/shuttlebackup"
-mfile = "/root/.shuttle.mails"
+class ShuttleBackup:
+    """ShuttleBackup Main Body"""
+    def __init__(self):
+        try:
+            self.argument = sys.argv[1]
+        except:
+            self.argument = "no-arg"
+        self.backups_folder = "/var/local/shuttlebackup"
+        self.emails_file = "/root/.shuttle.mails"
+        self.log_file = "/var/log/shuttlebackup.log"
+        self.all_mails = ''
+        self.send_to_mails = []
+        self.requirements_check()
 
-if not os.path.exists(bkdir):
-        os.makedirs(bkdir)
+        if self.argument == "--add-mails":
+            email = ''
+            while True:
+                email = email + input("Email: ") + '\n'
+                yes_no = input("Do you want to add another email? (y/n): ")
+                if yes_no == "n" or yes_no == "N" or yes_no == "no" or yes_no == "No":
+                    with open(self.emails_file, "a") as emails:
+                        emails.write(email)
+                    print("Emails added.")
+                    break
+                else:
+                    continue
+        elif self.argument == "--clear-mails":
+            file = open(self.emails_file, "w")
+            file.close()
+        elif self.argument == "no-arg":
+            self.load_emails()
+            self.command_output, self.command_error, self.command_status = self.create_backup()
+            try:
+                self.command_output = self.command_output.split('\n')
+                self.dump_location = self.command_output[-2].replace('A backup of your data can be found at ', '')
+                backup_time = datetime.datetime.now()
+                shutil.copy2(self.dump_location,
+                             self.backups_folder +
+                             "/bk-" +
+                             str(backup_time.year) +
+                             "-" +
+                             str(backup_time.month) +
+                             "-" +
+                             str(backup_time.day) +
+                             "-" +
+                             str(backup_time.hour) +
+                             ":" +
+                             str(backup_time.minute) +
+                             ".tgz")
+            except:
+                self.error_log_and_mail()
+        else:
+            print("Unknown argument")
 
-try:
-    os.stat(mfile)
-except:
-    file = open(mfile, "w")
-    file.close()
+    def requirements_check(self):
+        """Checks if the required files and folders exist"""
+        if not os.path.exists(self.backups_folder):
+            os.makedirs(self.backups_folder)
+        try:
+            os.stat(self.emails_file)
+        except:
+            file = open(self.emails_file, "w")
+            file.close()
+        try:
+            os.stat(self.log_file)
+        except:
+            file = open(self.log_file, "w")
+            file.close()
 
-send_to_mails = []
+    def load_emails(self):
+        """Load all email form file"""
+        with open(self.emails_file) as mail:
+            mails = mail.readlines()
+            for single_mail in mails:
+                if single_mail == "\n":
+                    break
+                else:
+                    self.send_to_mails.append(single_mail.replace('\n', ''))
 
-with open(cfile) as m:
-	allmails = m.readlines()
+    def error_log_and_mail(self):
+        """Write the error to the log file and send email notification"""
+        backup_time = datetime.datetime.now()
+        with open(self.log_file, "a") as log:
+            log.write(str(backup_time.year) +
+                      "-" + str(backup_time.month) +
+                      "-" + str(backup_time.day) +
+                      "-" + str(backup_time.hour) +
+                      ":" + str(backup_time.minute) +
+                      ":" + str(backup_time.second) +
+                      '\n' +
+                      str("Status: " +
+                          str(self.command_status) +
+                          '\n' +
+                          str(self.command_error) +
+                          '\n' +
+                          str(self.command_output)) +
+                      '\n')
+        try:
+            for send_to_mail in self.send_to_mails:
+                msg = EmailMessage()
+                msg.set_content(str("Status: " +
+                                    str(self.command_status) +
+                                    '\n' +
+                                    str(self.command_error) +
+                                    '\n' +
+                                    str(self.command_output)))
+                msg['Subject'] = 'Shuttle Backup error!'
+                msg['From'] = "Shuttle" + "@" + socket.gethostname()
+                msg['To'] = send_to_mail
+                to_send = smtplib.SMTP('localhost')
+                to_send.send_message(msg)
+                to_send.quit()
+        except:
+            with open(self.log_file, "a") as log:
+                log.write("Error! Could not send email!\n")
 
-for single_mail in lines:
-	if single_mail == "\n":
-		break
-	else:
-		send_to_mails.append(single_mail.replace('\n',''))
+    def create_backup(self):
+        """Generate the initial tgz dump"""
+        self.process = subprocess.Popen(['snap',
+                                         'run',
+                                         'rocketchat-server.backupdb'],
+                                        stdout=subprocess.PIPE)
+        self.output = self.process.communicate()
+        self.status = self.process.wait()
+        if self.output[1] is None:
+            return self.output[0].decode(), "Error but no error output...", self.status
+        elif self.output[0] is None:
+            return "No command output...", self.output[1].decode(), self.status
+        elif self.output[0] is None and self.output[1] is None:
+            return "No command output...", "Error but no error output...", self.status
+        else:
+            return self.output[0].decode(), self.output[1].decode(), self.status
 
-process = subprocess.Popen(['snap', 'run', 'rocketchat-server.backupdb'], stdout=subprocess.PIPE)
+def main():
+    """Load the main class"""
+    ShuttleBackup()
 
-out, err = process.communicate()
-
-now = datetime.datetime.now()
-
-if err == None:
-        out = out.decode().split('\n')
-        out = out[-2].replace('A backup of your data can be found at ', '')
-        shutil.copy2(out,
-                "/var/local/shuttlebackup/bk-" + 
-                str(now.year) + 
-                "-" + 
-                str(now.month) + 
-                "-" + 
-                str(now.day) + 
-                "-" + 
-                str(now.hour) + 
-                ":" + 
-                str(now.minute) + 
-                ".tgz")
-else:
-	with open("/var/log/shuttlebackup.log", "a") as logfile:
-            logfile.write(str(now.year) + 
-            "-" + str(now.month) + 
-            "-" + str(now.day) + 
-            "-" + str(now.hour) + 
-            ":" + str(now.minute) + 
-            ":" + str(now.second) + 
-            '\n' + 
-            str(err) + 
-            '\n')
-    try:
-		for send_to_mail in send_to_mails:
-		    msg = EmailMessage()
-		    msg.set_content('Error: ' + str(err))
-		    msg['Subject'] = 'Shuttle Backup error!'
-		    msg['From'] = "Shuttle" + "@" + socket.gethostname()
-		    msg['To'] = send_to_mail
-		    s = smtplib.SMTP('localhost')
-		    s.send_message(msg)
-		    s.quit()
-    except:
-    	pass
+if __name__ == "__main__":
+    main()

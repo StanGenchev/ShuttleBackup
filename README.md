@@ -2,11 +2,13 @@
 With ShuttleBackup you can easily automate the backup process of Rocket.Chat's database.
 
 # How to install
-Place the compiled and crontab files in the appropriate directory using the following commands:
+Place the python and crontab files in the appropriate directory using the following commands:
 ```bash
+git clone https://github.com/StanGenchev/ShuttleBackup.git
+cd ShuttleBackup
 sudo mkdir /opt/shuttlebackup
-sudo mv ~/ShuttleBackup/ShuttleBackup/shuttlebackup.py /opt/shuttlebackup/shuttlebackup.py
-sudo mv ~/ShuttleBackup/ShuttleBackup/shuttletab /opt/shuttlebackup/shuttletab
+sudo mv ~/ShuttleBackup/shuttlebackup.py /opt/shuttlebackup/shuttlebackup.py
+sudo mv ~/ShuttleBackup/shuttletab /opt/shuttlebackup/shuttletab
 ```
 
 Now add the cron job to the root user:
@@ -19,16 +21,14 @@ You can check if it was properly added using the command:
 sudo crontab -l
 ```
 
-# Add emails to notify in case off backup error
-For now the only way to add emails is manual.
-Open the file "/root/.shuttle.mails" and add each email on a new line.
+Add email addresses to notify in case of errors:
 ```bash
-sudo nano /root/.shuttle.mails
+/opt/shuttlebackup/shuttlebackup.py --add-mails
 ```
-Example file content:
-```
-example@example.com
-shuttle@shuttle.com
+
+Clear all emails:
+```bash
+/opt/shuttlebackup/shuttlebackup.py --clear-mails
 ```
 
 # Change the time of the backup process
