@@ -52,13 +52,13 @@ class ShuttleBackup:
                              "/bk-" +
                              str(backup_time.year) +
                              "-" +
-                             str(backup_time.month) +
+                             str("%02d" % (backup_time.month, )) +
                              "-" +
-                             str(backup_time.day) +
+                             str("%02d" % (backup_time.day, )) +
                              "-" +
-                             str(backup_time.hour) +
+                             str("%02d" % (backup_time.hour, )) +
                              ":" +
-                             str(backup_time.minute) +
+                             str("%02d" % (backup_time.minute, )) +
                              ".tgz")
             except:
                 self.error_log_and_mail()
