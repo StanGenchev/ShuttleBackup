@@ -44,3 +44,7 @@ The last line will read:
 ```
 The first number is the minute, the second is the hour, and the next three asterisks signify the day of the month, the month and the day of the week.
 If you are feeling unsure on how to format them properly you can go to the website "https://crontab.guru/" where you can generate your custom cron job.
+
+# Change the time of the automatic backup removal
+
+Open shuttlebackup.py and find the variable "self.max_backup_days" and change its value to whatever number you prefer. If you change its value to 20 it would mean that any backup older than 20 days will be deleted.

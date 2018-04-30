@@ -18,6 +18,7 @@ class ShuttleBackup:
             self.argument = sys.argv[1]
         except:
             self.argument = "no-arg"
+        self.max_backup_days = 20
         self.backups_folder = "/var/local/shuttlebackup"
         self.emails_file = "/root/.shuttle.mails"
         self.log_file = "/var/log/shuttlebackup.log"
@@ -43,6 +44,7 @@ class ShuttleBackup:
         elif self.argument == "no-arg":
             self.load_emails()
             self.command_output, self.command_error, self.command_status = self.create_backup()
+            self.clean_backups()
             try:
                 self.command_output = self.command_output.split('\n')
                 self.dump_location = self.command_output[-2].replace('A backup of your data can be found at ', '')
@@ -128,7 +130,7 @@ class ShuttleBackup:
                 log.write("Error! Could not send email!\n")
 
     def create_backup(self):
-        """Generate the initial tgz dump"""
+        """Generate the backup tgz dump"""
         self.process = subprocess.Popen(['snap',
                                          'run',
                                          'rocketchat-server.backupdb'],
@@ -143,6 +145,17 @@ class ShuttleBackup:
             return "No command output...", "Error but no error output...", self.status
         else:
             return self.output[0].decode(), self.output[1].decode(), self.status
+
+    def clean_backups(self):
+        now = time.time()
+        cutoff = now - (self.max_backup_days * 86400)
+        files = os.listdir(self.backups_folder)
+        for xfile in files:
+            if os.path.isfile( self.backups_folder + "/" + xfile ):
+                t = os.stat( self.backups_folder + "/" + xfile )
+                c = t.st_ctime
+                if c < cutoff:
+                    os.remove( self.backups_folder + "/" + xfile )
 
 def main():
     """Load the main class"""
