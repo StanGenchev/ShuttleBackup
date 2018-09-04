@@ -113,7 +113,7 @@ class ShuttleBackup:
                                           str("%02d" % (backup_time.day, )) + "-" +
                                               str("%02d" % (backup_time.hour, )) + ":" +
                                                   str("%02d" % (backup_time.minute, )) + ".tgz")
-        shutil.copy2(self.dump_location, backup_archive_destination)
+        shutil.move(self.dump_location, backup_archive_destination)
 
         try:
             os.stat(backup_archive_destination)
