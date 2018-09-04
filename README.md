@@ -37,25 +37,25 @@ sudo ninja install
 You can add multiple emails to which the data will be send to.
 
 ```bash
-shuttlebackups --add-emails
+shuttlebackup --add-emails
 ```
 
 To show all emails:
 
 ```bash
-shuttlebackups --show-emails
+shuttlebackup --show-emails
 ```
 
 To remove select email:
 
 ```bash
-shuttlebackups --remove-email
+shuttlebackup --remove-email
 ```
 
 To clear all emails:
 
 ```bash
-shuttlebackups --clear-emails
+shuttlebackup --clear-emails
 ```
 
 ## How to create/show/delete backups
@@ -63,25 +63,25 @@ shuttlebackups --clear-emails
 To create a backup:
 
 ```bash
-shuttlebackups --backup
+shuttlebackup --backup
 ```
 
 To show all backups:
 
 ```bash
-shuttlebackups --show-backups
+shuttlebackup --show-backups
 ```
 
 To remove select backups:
 
 ```bash
-shuttlebackups --remove-backup
+shuttlebackup --remove-backup
 ```
 
 To delete all backups:
 
 ```bash
-shuttlebackups --clear-backups
+shuttlebackup --clear-backups
 ```
 
 ## How to show/change the number of backup archives
@@ -90,13 +90,13 @@ The default number is ten.
 To show the current number:
 
 ```bash
-shuttlebackups --show-count
+shuttlebackup --show-count
 ```
 
 To change the number:
 
 ```bash
-shuttlebackups --change-count
+shuttlebackup --change-count
 ```
 
 ## How to automate it
