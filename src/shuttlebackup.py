@@ -137,10 +137,10 @@ class ShuttleBackup:
               "Remove email from the 'send to' list." +
               "\n  -ce, --clear-emails\t\t" +
               "Remove all emails from your 'send to' list." +
-              "\n  -rb, --remove-backup\t\t" +
-              "Delete select backups." +
               "\n  -sb, --show-backups\t\t" +
               "Show all backups." +
+              "\n  -rb, --remove-backup\t\t" +
+              "Delete select backups." +
               "\n  -cb, --clear-backups\t\t" +
               "Delete all backups." +
               "\n  -cc, --change-count\t\t" +

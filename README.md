@@ -1,50 +1,116 @@
 # ShuttleBackup
 With ShuttleBackup you can easily automate the backup process of Rocket.Chat's database.
+It will create backup archives in '/var/shuttlebackup/archives' and in case of error it will send notification via email.
+Note that this works only with the 'snap' version of Rocket.Chat.
 
-# How to install
-Place the python and crontab files in the appropriate directory using the following commands:
+## How to install
+Clone the repo:
 ```bash
 git clone https://github.com/StanGenchev/ShuttleBackup.git
+```
+
+Install dependencies:
+
+If running Debian/Ubuntu:
+```bash
+sudo apt install python3 python3-pip
+sudo pip3 install meson ninja
+```
+
+If running RedHat/CentOS/Fedora
+```bash
+sudo yum install python3 python3-pip postfix mailx
+sudo pip3 install meson ninja
+```
+
+Build and install:
+
+```bash
 cd ShuttleBackup
-sudo mkdir /opt/shuttlebackup
-sudo mv ./ShuttleBackup/shuttlebackup.py /opt/shuttlebackup/shuttlebackup.py
-sudo mv ./ShuttleBackup/shuttletab /opt/shuttlebackup/shuttletab
+meson builddir
+cd builddir
+sudo ninja install
 ```
 
-Now add the cron job to the root user:
+## How to add/show/clear emails
+
+You can add multiple emails to which the data will be send to.
+
 ```bash
-sudo crontab /opt/shuttlebackup/shuttletab
+shuttlebackups --add-emails
 ```
 
-You can check if it was properly added using the command:
+To show all emails:
+
 ```bash
-sudo crontab -l
+shuttlebackups --show-emails
 ```
 
-Add email addresses to notify in case of errors:
+To remove select email:
+
 ```bash
-sudo /opt/shuttlebackup/shuttlebackup.py --add-mails
+shuttlebackups --remove-email
 ```
 
-Clear all emails:
+To clear all emails:
+
 ```bash
-sudo /opt/shuttlebackup/shuttlebackup.py --clear-mails
+shuttlebackups --clear-emails
 ```
 
-# Change the time of the backup process
+## How to create/show/delete backups
 
-By default the cron job is set to run everyday at 23:45.
-If you want to change that you can do it by editing the 'shuttletab' file:
+To create a backup:
+
 ```bash
-sudo nano /opt/shuttlebackup/shuttletab
+shuttlebackups --backup
 ```
-The last line will read:
-```
-45 23 * * *   /usr/bin/python3 /opt/shuttlebackup/shuttlebackup.py
-```
-The first number is the minute, the second is the hour, and the next three asterisks signify the day of the month, the month and the day of the week.
-If you are feeling unsure on how to format them properly you can go to the website "https://crontab.guru/" where you can generate your custom cron job.
 
-# Change the time of the automatic backup removal
+To show all backups:
 
-Open shuttlebackup.py and find the variable "self.max_backup_days" and change its value to whatever number you prefer. If you change its value to 20 it would mean that any backup older than 20 days will be deleted.
+```bash
+shuttlebackups --show-backups
+```
+
+To remove select backups:
+
+```bash
+shuttlebackups --remove-backup
+```
+
+To delete all backups:
+
+```bash
+shuttlebackups --clear-backups
+```
+
+## How to show/change the number of backup archives
+
+The default number is ten.
+To show the current number:
+
+```bash
+shuttlebackups --show-count
+```
+
+To change the number:
+
+```bash
+shuttlebackups --change-count
+```
+
+## How to automate it
+
+Add the following lines to your crontab:
+```bash
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+45 23 * * *   /usr/bin/python3 /usr/local/bin/shuttlebackup
+```
+
+'23' is the hour and '45' is the minute.
+
+You can add tasks to cron using the command:
+```bash
+sudo crontab -e
+```
