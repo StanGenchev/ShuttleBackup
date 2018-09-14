@@ -50,8 +50,9 @@ class ShuttleBackup:
                 sys.exit(0)
 
             elif self.argument == "--show-emails" or self.argument == "-se":
-                for email in self.send_to_mails:
-                    print(email)
+                if self.send_to_mails:
+                    for email in self.send_to_mails:
+                        print(email)
                 sys.exit(0)
 
             elif self.argument == "--remove-email" or self.argument == "-re":
@@ -191,6 +192,9 @@ class ShuttleBackup:
 
     def requirements_check(self):
         """Checks if the required files and folders exist"""
+        if not os.path.exists(self.base_folder):
+            os.makedirs(self.base_folder)
+
         if not os.path.exists(self.backups_folder):
             os.makedirs(self.backups_folder)
 
@@ -246,7 +250,7 @@ class ShuttleBackup:
         return count
 
     def notify_failed_backup(self, backup_time):
-        """Write the error to the log file and send email notification"""
+        """Write the error to the log file and send email notification if possible"""
         with open(self.log_file, "a") as log:
             log.write(str(backup_time.year) +
                       "-" + str(backup_time.month) +
@@ -262,24 +266,24 @@ class ShuttleBackup:
                           '\n' +
                           str(self.command_output)) +
                       '\n')
-
-        try:
-            msg = EmailMessage()
-            msg.set_content(str("Status: " +
-                                str(self.command_status) +
-                                '\n' +
-                                str(self.command_error) +
-                                '\n' +
-                                str(self.command_output)))
-            msg['Subject'] = 'Backup error! - ' + str(backup_time.day) + str(backup_time.month) + str(backup_time.year)
-            msg['From'] = "Shuttle" + "@" + socket.gethostname()
-            msg['To'] = ', '.join(self.send_to_mails)
-            to_send = smtplib.SMTP('localhost')
-            to_send.send_message(msg)
-            to_send.quit()
-        except:
-            with open(self.log_file, "a") as log:
-                log.write("Error! Could not send email!\n")
+        if self.send_to_mails:
+            try:
+                msg = EmailMessage()
+                msg.set_content(str("Status: " +
+                                    str(self.command_status) +
+                                    '\n' +
+                                    str(self.command_error) +
+                                    '\n' +
+                                    str(self.command_output)))
+                msg['Subject'] = 'Backup error! - ' + str(backup_time.day) + str(backup_time.month) + str(backup_time.year)
+                msg['From'] = "Shuttle" + "@" + socket.gethostname()
+                msg['To'] = ', '.join(self.send_to_mails)
+                to_send = smtplib.SMTP('localhost')
+                to_send.send_message(msg)
+                to_send.quit()
+            except:
+                with open(self.log_file, "a") as log:
+                    log.write("Error! Could not send email!\n")
 
     def create_backup(self):
         """Generate the backup tgz dump"""
