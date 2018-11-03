@@ -31,6 +31,7 @@ class ShuttleBackup:
 
         self.base_folder = "/var/shuttlebackup"
         self.backups_folder = "/var/shuttlebackup/archives"
+        self.backups_log_folder = "/var/shuttlebackup/logs"
         self.log_file = "/var/log/shuttlebackup.log"
         self.db_file = self.base_folder + "/shuttle.db"
 
@@ -103,23 +104,15 @@ class ShuttleBackup:
                     self.print_help()
                     sys.exit(1)
 
-        self.command_output, self.command_error, self.command_status = self.create_backup()
-
-        self.command_output = self.command_output.split('\n')
-        self.dump_location = self.command_output[-2].replace('A backup of your data can be found at ', '')
-        backup_time = datetime.datetime.now()
-        backup_archive_destination = (self.backups_folder + "/bk-" +
-                                      str(backup_time.year) + "-" +
-                                      str("%02d" % (backup_time.month, )) + "-" +
-                                          str("%02d" % (backup_time.day, )) + "-" +
-                                              str("%02d" % (backup_time.hour, )) + ":" +
-                                                  str("%02d" % (backup_time.minute, )) + ".tgz")
-        shutil.move(self.dump_location, backup_archive_destination)
-
         try:
-            os.stat(backup_archive_destination)
+            self.command_output, self.command_error, self.command_status = self.create_backup()
+            self.command_output = self.command_output.split('\n')
+            backup_dump_name = self.command_output[-2].split('A backup of your data can be found at ')[1]
+            backup_log_name = backup_dump_name.replace('rocketchat_', '').replace('tar.gz', 'log')
+            shutil.move(backup_dump_name, self.backups_folder)
+            shutil.move(backup_log_name, self.backups_log_folder)
         except:
-            self.notify_failed_backup(backup_time)
+            self.notify_failed_backup()
             sys.exit(1)
 
         self.clean_backups()
@@ -198,6 +191,9 @@ class ShuttleBackup:
         if not os.path.exists(self.backups_folder):
             os.makedirs(self.backups_folder)
 
+        if not os.path.exists(self.backups_log_folder):
+            os.makedirs(self.backups_log_folder)
+
         try:
             os.stat(self.log_file)
         except:
@@ -249,8 +245,9 @@ class ShuttleBackup:
 
         return count
 
-    def notify_failed_backup(self, backup_time):
+    def notify_failed_backup(self):
         """Write the error to the log file and send email notification if possible"""
+        backup_time = datetime.datetime.now()
         with open(self.log_file, "a") as log:
             log.write(str(backup_time.year) +
                       "-" + str(backup_time.month) +

@@ -26,10 +26,8 @@ sudo pip3 install meson ninja
 Build and install:
 
 ```bash
-cd ShuttleBackup
-meson builddir
-cd builddir
-sudo ninja install
+cd ShuttleBackup && meson builddir
+cd builddir && sudo ninja install
 ```
 
 ## How to add/show/clear emails
