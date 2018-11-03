@@ -116,7 +116,7 @@ Add the following lines to your crontab:
 ```bash
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-45 23 * * *   /usr/bin/python3 /usr/local/bin/shuttlebackup
+45 23 * * *   /usr/bin/python3 /usr/bin/shuttlebackup
 ```
 
 '23' is the hour and '45' is the minute.
