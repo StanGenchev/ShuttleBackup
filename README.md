@@ -1,6 +1,6 @@
 # ShuttleBackup
-With ShuttleBackup you can easily automate the backup process of Rocket.Chat's database.
-It will create backup archives in '/var/shuttlebackup/archives' and in case of error it will send notification via email.
+ShuttleBackup can create and store backup archives of Rocket.Chat's database.
+It has the optional feature to send a notification via email in case of error and can be automated using cron.
 Note that this works only with the 'snap' version of Rocket.Chat.
 
 ## How to install
@@ -30,30 +30,43 @@ cd ShuttleBackup && meson builddir
 cd builddir && sudo ninja install
 ```
 
-## How to add/show/clear emails
-
-You can add multiple emails to which the data will be send to.
+## Backup archives and logs location
+You can find the archives in:
 
 ```bash
-shuttlebackup --add-emails
+/var/shuttlebackup/archives
+```
+
+and the mongo dump logs in:
+
+```bash
+/var/shuttlebackup/logs
+```
+
+## How to add/show/clear emails
+
+You can add multiple emails to which the notifications will be send to.
+
+```bash
+sudo shuttlebackup --add-emails
 ```
 
 To show all emails:
 
 ```bash
-shuttlebackup --show-emails
+sudo shuttlebackup --show-emails
 ```
 
 To remove select email:
 
 ```bash
-shuttlebackup --remove-email
+sudo shuttlebackup --remove-email
 ```
 
 To clear all emails:
 
 ```bash
-shuttlebackup --clear-emails
+sudo shuttlebackup --clear-emails
 ```
 
 ## How to create/show/delete backups
@@ -61,25 +74,25 @@ shuttlebackup --clear-emails
 To create a backup:
 
 ```bash
-shuttlebackup --backup
+sudo shuttlebackup --backup
 ```
 
 To show all backups:
 
 ```bash
-shuttlebackup --show-backups
+sudo shuttlebackup --show-backups
 ```
 
 To remove select backups:
 
 ```bash
-shuttlebackup --remove-backup
+sudo shuttlebackup --remove-backup
 ```
 
 To delete all backups:
 
 ```bash
-shuttlebackup --clear-backups
+sudo shuttlebackup --clear-backups
 ```
 
 ## How to show/change the number of backup archives
@@ -88,13 +101,13 @@ The default number is ten.
 To show the current number:
 
 ```bash
-shuttlebackup --show-count
+sudo shuttlebackup --show-count
 ```
 
 To change the number:
 
 ```bash
-shuttlebackup --change-count
+sudo shuttlebackup --change-count
 ```
 
 ## How to automate it
